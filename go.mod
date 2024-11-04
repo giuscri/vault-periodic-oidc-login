@@ -2,7 +2,10 @@ module github.com/giuscri/vault-periodic-oidc-login
 
 go 1.22.5
 
-require github.com/hashicorp/vault/api v1.15.0
+require (
+	github.com/hashicorp/vault/api v1.15.0
+	gopkg.in/yaml.v3 v3.0.1
+)
 
 require (
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect

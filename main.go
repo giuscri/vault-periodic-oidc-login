@@ -10,18 +10,42 @@ import (
 	"time"
 
 	"github.com/hashicorp/vault/api"
+	"gopkg.in/yaml.v3"
 )
 
+type Config struct {
+	VaultAddr string `yaml:"vaultAddr"`
+	MinTTL    string `yaml:"minTTL"`
+	TokenPath string `yaml:"tokenPath"`
+}
+
 func main() {
-	var vaultAddr, unexpandedTokenPath, minTTLStr string
-	flag.StringVar(&vaultAddr, "vault-addr", "", "Vault address e.g. https://vault.acme.com")
-	flag.StringVar(&unexpandedTokenPath, "token-path", "$HOME/.vault-token", "Path to Vault token")
-	flag.StringVar(&minTTLStr, "min-ttl", "72h", "Minimum TTL for the token, e.g. 72h")
+	var configFile string
+	flag.StringVar(&configFile, "config-file", "", "Path to configuration YAML file")
 	flag.Parse()
+
+	if configFile == "" {
+		log.Fatalf("### error: --config-file must be specified")
+	}
+
+	configData, err := os.ReadFile(configFile)
+	if err != nil {
+		log.Fatalf("### error reading config file: %v", err)
+	}
+
+	var cfg Config
+	err = yaml.Unmarshal(configData, &cfg)
+	if err != nil {
+		log.Fatalf("### error parsing config file: %v", err)
+	}
+
+	vaultAddr := cfg.VaultAddr
+	minTTLStr := cfg.MinTTL
+	unexpandedTokenPath := cfg.TokenPath
 
 	minTTL, err := time.ParseDuration(minTTLStr)
 	if err != nil {
-		log.Fatalf("### error parsing duration: %v", err)
+		log.Fatalf("### error parsing minTTL duration: %v", err)
 	}
 
 	client, err := api.NewClient(&api.Config{
