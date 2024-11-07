@@ -2,8 +2,8 @@ name: goreleaser
 
 on:
   push:
-    # tags:
-    #   - '*'
+    tags:
+      - '*'
 
 permissions:
   contents: write
@@ -26,8 +26,6 @@ jobs:
         with:
           distribution: goreleaser
           version: '~> v2'
-          args: release --clean
+          args: release --clean -f .goreleaser.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GOOS: darwin
-          GOARCH: arm64
